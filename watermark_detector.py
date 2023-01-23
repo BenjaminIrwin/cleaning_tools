@@ -79,15 +79,15 @@ def main():
     curr_batch = 1
     for batch in get_batch(test_files, batch_size):
         print('BATCH: ', curr_batch, ' OF ', num_batches)
-        try:
-            watermark_images = detect_watermark(batch)
-            # Move all watermark images to 'failed' folder
-            for img in watermark_images:
-                print('Moving ' + img)
-                filename = os.path.basename(img)
-                shutil.move(img, trash_folder + '/' + filename)
-        except Exception as e:
-            print('ERROR: ', e)
+        # try:
+        watermark_images = detect_watermark(batch)
+        # Move all watermark images to 'failed' folder
+        for img in watermark_images:
+            print('Moving ' + img)
+            filename = os.path.basename(img)
+            shutil.move(img, trash_folder + '/' + filename)
+        # except Exception as e:
+        #     print('ERROR: ', e)
         curr_batch += 1
 
 
