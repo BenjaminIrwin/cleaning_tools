@@ -86,7 +86,7 @@ def main():
                 print('Moving ' + img)
                 filename = os.path.basename(img)
                 shutil.move(img, trash_folder + '/' + filename)
-        except Exceptin as e:
+        except Exception as e:
             print('ERROR: ', e)
         curr_batch += 1
 

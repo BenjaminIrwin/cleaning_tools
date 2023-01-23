@@ -47,6 +47,7 @@ def main():
     for batch in get_batch(test_files, batch_size):
         test_dl = learn.dls.test_dl(batch)
         print('BATCH: ', curr_batch, ' OF ', num_batches)
+        curr_batch += 1
         try:
             preds, _, decoded = learn.get_preds(dl=test_dl, with_decoded=True)
             count = 0
@@ -58,15 +59,22 @@ def main():
 
             print('CLEANED: ', count)
         except Exception:
-            try:
-                for img in batch:
-                    if os.path.exists(img):
-                        filename = os.path.basename(img)
-                        shutil.move(img, failed_folder + '/' + filename)
-            except Exception:
-                print('ERROR MOVING FILES TO FAILED.')
+            print('BATCH ERROR THEREFORE TRYING IMAGES INDIVIDUALLY')
+            count = 0
+            for image in batch:
+                try:
+                    outcome, _, probs = learn.predict(PILImage.create(image))
+                    count = 0
+                    if probs[0] < 0.85:
+                        count += 1
+                        filename = os.path.basename(image)
+                        shutil.move(image, trash_folder + '/' + filename)
 
-        curr_batch += 1
+                    print('CLEANED: ', count)
+                except Exception:
+                    print('ERROR MOVING IMAGE TO FAILED.')
+                    filename = os.path.basename(image)
+                    shutil.move(image, failed_folder + '/' + filename)
 
     cleaned_images = glob.glob(trash_folder + '/*')
     print('CLEANED IMAGES: ', len(cleaned_images))
