@@ -6,6 +6,8 @@ import glob
 import shutil
 import torch
 
+from util import get_batch
+
 parser = argparse.ArgumentParser(description='Fast AI dataset cleaner')
 parser.add_argument('--input_image_folder', type=str, required=True,
                     help='The folder containing the images to be classified.')
@@ -21,12 +23,6 @@ if not os.path.exists(trash_folder):
 
 if not os.path.exists(failed_folder):
     os.makedirs(failed_folder)
-
-
-def get_batch(list, batch_size):
-    # Iterate over a list with a batch size
-    for i in range(0, len(list), batch_size):
-        yield list[i:i + batch_size]
 
 
 def main():
@@ -72,7 +68,7 @@ def main():
 
         curr_batch += 1
 
-    cleaned_images = glob.glob(trash_folder + '/*.png')
+    cleaned_images = glob.glob(trash_folder + '/*')
     print('CLEANED IMAGES: ', len(cleaned_images))
 
 
