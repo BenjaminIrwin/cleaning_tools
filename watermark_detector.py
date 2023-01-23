@@ -73,13 +73,22 @@ def main():
     input_image_folder = args.input_image_folder
     batch_size = args.batch_size
     test_files = glob.glob(input_image_folder + '/*.jpg')
+    print('FILES FOUND: ', len(test_files))
+    num_batches = len(test_files) / batch_size
+    print('BATCHES: ', num_batches)
+    curr_batch = 1
     for batch in get_batch(test_files, batch_size):
-        watermark_images = detect_watermark(batch)
-        # Move all watermark images to 'failed' folder
-        for img in watermark_images:
-            print('Moving ' + img)
-            filename = os.path.basename(img)
-            shutil.move(img, trash_folder + '/' + filename)
+        print('BATCH: ', curr_batch, ' OF ', num_batches)
+        try:
+            watermark_images = detect_watermark(batch)
+            # Move all watermark images to 'failed' folder
+            for img in watermark_images:
+                print('Moving ' + img)
+                filename = os.path.basename(img)
+                shutil.move(img, trash_folder + '/' + filename)
+        except Exceptin as e:
+            print('ERROR: ', e)
+        curr_batch += 1
 
 
 if __name__ == "__main__":
