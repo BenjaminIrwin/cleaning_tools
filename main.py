@@ -60,7 +60,7 @@ def main():
                     filename = os.path.basename(batch[idx])
                     shutil.move(batch[idx], trash_folder + '/' + filename)
 
-            print(count)
+            print('CLEANED: ', count)
         except Exception:
             try:
                 for img in batch:
