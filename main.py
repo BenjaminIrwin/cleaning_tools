@@ -70,6 +70,8 @@ def main():
             except Exception:
                 print('ERROR MOVING FILES TO FAILED.')
 
+        curr_batch += 1
+
     cleaned_images = glob.glob(trash_folder + '/*.png')
     print('CLEANED IMAGES: ', len(cleaned_images))
 
