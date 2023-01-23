@@ -16,6 +16,12 @@ parser.add_argument('--batch_size', type=int, default=50, help='Inference batch 
 trash_folder = 'trash'
 failed_folder = 'failed'
 
+if not os.path.exists(trash_folder):
+    os.makedirs(trash_folder)
+
+if not os.path.exists(failed_folder):
+    os.makedirs(failed_folder)
+
 
 def get_batch(list, batch_size):
     # Iterate over a list with a batch size
