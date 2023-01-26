@@ -36,3 +36,5 @@ def main():
             os.rename(im, output_folder + '/' + f_name)
             print('MOVED: ', f_name)
 
+if __name__ == "__main__":
+    main()
