@@ -1,5 +1,6 @@
 import argparse
 import glob
+import math
 import os
 import shutil
 
@@ -74,7 +75,8 @@ def main():
     batch_size = args.batch_size
     test_files = glob.glob(input_image_folder + '/*.jpg')
     print('FILES FOUND: ', len(test_files))
-    num_batches = len(test_files) / batch_size
+    # calculate num_batches rounded up to nearest integer
+    num_batches = math.ceil(len(test_files) // batch_size)
     print('BATCHES: ', num_batches)
     curr_batch = 1
     for batch in get_batch(test_files, batch_size):
