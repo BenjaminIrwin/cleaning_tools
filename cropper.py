@@ -56,7 +56,7 @@ def main():
                 # Remove image
                 to_remove.append(im)
             else:
-                print('CROPPING: ', idx, ' OF ', len(test_files))
+                print('CROPPING: ', idx, ' OF ', len(test_files), ' : ', im)
                 if image_width > width or image_height > height:
                     # Resize image making smaller dimension equal to desired dimension
                     if image_width > image_height:
