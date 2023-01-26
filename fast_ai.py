@@ -14,6 +14,7 @@ parser.add_argument('--input_image_folder', type=str, required=True,
 parser.add_argument('--classifier_path', type=str, default='render_classifier (1).pkl',
                     help='Path to the classifier model.')
 parser.add_argument('--batch_size', type=int, default=50, help='Inference batch size.')
+parser.add_argument('--remove_if_false', type=bool, default=False, help='Remove images if classifier returns false.')
 
 trash_folder = 'trash'
 failed_folder = 'failed'
@@ -32,6 +33,7 @@ def main():
     custom_classifier_path = args.classifier_path
     input_image_folder = args.input_image_folder
     batch_size = args.batch_size
+    remove_if_false = args.remove_if_false
     learn = load_learner(custom_classifier_path, cpu=False)
     learn.model.to(torch.device('cuda'))
 
@@ -52,11 +54,16 @@ def main():
             preds, _, decoded = learn.get_preds(dl=test_dl, with_decoded=True)
             count = 0
             for idx, pred in enumerate(preds):
-                if pred[0] < 0.85:
-                    count += 1
-                    filename = os.path.basename(batch[idx])
-                    shutil.move(batch[idx], trash_folder + '/' + filename)
-
+                if remove_if_false:
+                    if pred[0] < 0.25:
+                        count += 1
+                        filename = os.path.basename(batch[idx])
+                        shutil.move(batch[idx], trash_folder + '/' + filename)
+                else:
+                    if pred[0] > 0.75:
+                        count += 1
+                        filename = os.path.basename(batch[idx])
+                        shutil.move(batch[idx], trash_folder + '/' + filename)
             print('CLEANED: ', count)
         except Exception:
             print('BATCH ERROR THEREFORE TRYING IMAGES INDIVIDUALLY')

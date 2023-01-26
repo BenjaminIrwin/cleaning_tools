@@ -4,7 +4,9 @@ import time
 import argparse
 from pathlib import Path
 
+import numpy as np
 import torch
+from PIL import Image
 from numpy import random
 from torchvision import transforms
 
