@@ -78,9 +78,10 @@ def main():
                 else:
                     image.save(im)
 
-    print('REMOVING: ', len(to_remove))
-    for im in to_remove:
-        os.remove(im)
+    s = input('Do you want to remove the images that are too small? y/n')
+    if s == 'y':
+        for im in to_remove:
+            os.remove(im)
 
 
 if __name__ == "__main__":
