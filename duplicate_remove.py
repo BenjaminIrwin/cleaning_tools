@@ -5,6 +5,11 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--input_dir', type=str, default='data/images', help='path to images')
 parser.add_argument('--work_dir', type=str, default='out', help='path to working directry')
 
+def output_list_to_file(output_list, output_file):
+    with open(output_file, 'w') as f:
+        for item in output_list:
+
+
 def main():
     args = parser.parse_args()
     work_dir = args.work_dir
