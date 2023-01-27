@@ -3,7 +3,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--input_dir', type=str, default='data/images', help='path to images')
-parser.add_argument('--work_dir', type=str, default='out', help='path to images')
+parser.add_argument('--work_dir', type=str, default='out', help='path to working directry')
 
 def main():
     args = parser.parse_args()
