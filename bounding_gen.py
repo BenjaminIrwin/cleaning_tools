@@ -142,7 +142,7 @@ def main():
     args = parser.parse_args()
 
     detect(target_class=0, conf_thres=0.35, iou_thres=0.45, imgsz=512,
-           source=args.source_dir, cpu=False, save_dir=args.text_output_dir)
+           source=args.source_dir, cpu=False, save_dir=args.txt_output_dir)
 
 
 if __name__ == '__main__':
