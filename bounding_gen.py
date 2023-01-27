@@ -1,5 +1,6 @@
 import glob
 import os
+import sys
 import time
 import argparse
 from pathlib import Path
@@ -10,11 +11,13 @@ from PIL import Image, ImageDraw
 from numpy import random
 from torchvision import transforms
 
-from yolov7.models.experimental import attempt_load
-from yolov7.utils.datasets import LoadImages
-from yolov7.utils.general import check_img_size, non_max_suppression, apply_classifier, \
+sys.path.insert(0,'yolov7')
+
+from models.experimental import attempt_load
+from utils.datasets import LoadImages
+from utils.general import check_img_size, non_max_suppression, apply_classifier, \
     scale_coords, set_logging
-from yolov7.utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
+from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--source_dir', type=str, default='/content/test', help='source')
