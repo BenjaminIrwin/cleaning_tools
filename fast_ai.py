@@ -54,16 +54,11 @@ def main():
             preds, _, decoded = learn.get_preds(dl=test_dl, with_decoded=True)
             count = 0
             for idx, pred in enumerate(preds):
-                if remove_if_false:
-                    if pred[0] < 0.25:
-                        count += 1
-                        filename = os.path.basename(batch[idx])
-                        shutil.move(batch[idx], trash_folder + '/' + filename)
-                else:
-                    if pred[0] > 0.75:
-                        count += 1
-                        filename = os.path.basename(batch[idx])
-                        shutil.move(batch[idx], trash_folder + '/' + filename)
+                if pred[0] < 0.85:
+                    count += 1
+                    filename = os.path.basename(batch[idx])
+                    shutil.move(batch[idx], trash_folder + '/' + filename)
+
             print('CLEANED: ', count)
         except Exception:
             print('BATCH ERROR THEREFORE TRYING IMAGES INDIVIDUALLY')
