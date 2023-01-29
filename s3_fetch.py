@@ -5,7 +5,7 @@ aws_access_key_id = 'AKIAW3YIJRQ7653XVP6F'
 aws_secret_access_key = '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'
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--prefix', type=str, default='img', help='prefix of images')
+parser.add_argument('--prefix', type=str, default='alpha', help='prefix of images')
 parser.add_argument('--output_folder', type=str, default='data/images', help='path to images')
 
 
@@ -26,7 +26,7 @@ def main():
 
     for response in pages:
         for content in response.get('Contents', []):
-            img_name = 'a_' + str(image_index) + '.jpg'
+            img_name = prefix + '_' + str(image_index) + '.jpg'
             dest = output_folder + img_name
             print(dest)
             s3_client.download_file('lightsketch-bucket', content['Key'], dest)
