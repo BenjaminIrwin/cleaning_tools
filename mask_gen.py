@@ -26,6 +26,7 @@ def main():
     for t in text_files:
         # Get the image name
         name = os.path.basename(t).replace('.txt', '')
+        print('Processing {}'.format(name))
         # Parse text file to get the bounding boxes
         with open(t, 'r') as f:
             lines = f.readlines()
