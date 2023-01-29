@@ -21,7 +21,7 @@ def main():
         os.makedirs(args.cutout_output_dir)
 
     # Load all the text files
-    text_files = glob.glob(args.text_output_dir + '/*.txt')
+    text_files = glob.glob(args.text_output_dir + '/*')
     print('Found {} text files'.format(len(text_files)))
     for t in text_files:
         # Get the image name
