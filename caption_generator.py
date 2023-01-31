@@ -34,7 +34,7 @@ class BlipDataset(Dataset):
             for p in image_paths:
                 if ignore_images:
                     n = os.path.basename(p).replace('c_','', 1).replace('.png', '').replace('.jpg', '').replace('.jpeg', '')
-                    print('Checking image {}'.format(n))
+                    # print('Checking image {}'.format(n))
                     if n not in ignore_images:
                         self.img_list.append(p)
                     else:
@@ -105,36 +105,36 @@ def main():
     data = BlipDataset(cutout_folder, transform, ignore_images)
     inference_dataloader = DataLoader(data, batch_size=batch_size, collate_fn=data.collate_fn)
 
-    # data_iter = iter(inference_dataloader)
-    #
-    # question1 = 'what age group is the person?'
-    # question2 = 'what is the person wearing?'
-    # question3 = 'what is the position of the person?'
-    # question4 = 'what is the gender of the person?'
-    #
-    # i = 1
-    # for step, batch in enumerate(data_iter):
-    #     print('STEP: ' + str(step))
-    #     paths = batch['paths']
-    #     print(paths)
-    #     images = batch['image_pixel_values'].to(device)
-    #     answers = {}
-    #     with torch.no_grad():
-    #         for q in [question1, question2, question4, question3]:
-    #             print('QUESTION: ' + q)
-    #             answer = model(images, q, train=False, inference='generate')
-    #             print('ANSWERS: ')
-    #             print(answer)
-    #             answers[q] = answer
-    #
-    #     i += 1
-    #
-    #     for j in range(batch_size):
-    #         caption = f'{answers[question1][j]} {answers[question4][j]} {answers[question3][j]} wearing {answers[question2][j]}'
-    #         print(caption)
-    #         key = Path(paths[j]).stem.replace('c_', 't_', 1)
-    #         with open(f'{caption_folder}{key}.txt', "w") as text_file:
-    #             text_file.write(caption)
+    data_iter = iter(inference_dataloader)
+
+    question1 = 'what age group is the person?'
+    question2 = 'what is the person wearing?'
+    question3 = 'what is the position of the person?'
+    question4 = 'what is the gender of the person?'
+
+    i = 1
+    for step, batch in enumerate(data_iter):
+        print('STEP: ' + str(step))
+        paths = batch['paths']
+        print(paths)
+        images = batch['image_pixel_values'].to(device)
+        answers = {}
+        with torch.no_grad():
+            for q in [question1, question2, question4, question3]:
+                print('QUESTION: ' + q)
+                answer = model(images, q, train=False, inference='generate')
+                print('ANSWERS: ')
+                print(answer)
+                answers[q] = answer
+
+        i += 1
+
+        for j in range(batch_size):
+            caption = f'{answers[question1][j]} {answers[question4][j]} {answers[question3][j]} wearing {answers[question2][j]}'
+            print(caption)
+            key = Path(paths[j]).stem.replace('c_', 't_', 1)
+            with open(f'{caption_folder}{key}.txt', "w") as text_file:
+                text_file.write(caption)
 
 
 if __name__ == '__main__':
