@@ -10,6 +10,9 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 from torchvision.transforms.functional import InterpolationMode
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--image_dir', type=str, default='data/images', help='path to images')
+parser.add_argument('--caption_dir', type=str, default='out')
 
 class BlipDataset(Dataset):
     def __init__(self, img_dir, transform=None):
@@ -19,6 +22,7 @@ class BlipDataset(Dataset):
         self.img_list = []
         for files in types:
             self.img_list.extend(glob.glob(img_dir + '/' + files))
+        self.img_list.reverse()
         print('DATASET CREATED WITH ' + str(len(self.img_list)) + ' files.')
         self.transform = transform
 
@@ -45,11 +49,6 @@ class BlipDataset(Dataset):
         }
 
         return batch
-
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--image_dir', type=str, default='data/images', help='path to images')
-parser.add_argument('--caption_dir', type=str, default='out')
 
 
 def main():
