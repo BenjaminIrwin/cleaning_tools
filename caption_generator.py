@@ -13,15 +13,31 @@ from torchvision.transforms.functional import InterpolationMode
 parser = argparse.ArgumentParser()
 parser.add_argument('--image_dir', type=str, default='data/images', help='path to images')
 parser.add_argument('--caption_dir', type=str, default='out')
+parser.add_argument('--ignore_images', type=str, default=None, help='path to txt file with images to ignore')
 
 class BlipDataset(Dataset):
-    def __init__(self, img_dir, transform=None):
+    def __init__(self, img_dir, transform=None, ignore_images=None):
         self.img_dir = img_dir
+
+        if ignore_images:
+            with open(ignore_images, 'r') as f:
+                ignore_images = f.read().splitlines()
+
         import glob
         types = ('*.jpg', '*.png', '*.jpeg')
         self.img_list = []
         for files in types:
-            self.img_list.extend(glob.glob(img_dir + '/' + files))
+            image_paths = glob.glob(img_dir + '/' + files)
+            for p in image_paths:
+                if ignore_images:
+                    if os.path.basename(p).replace('.png','').replace('.jpg','').replace('.jpeg','') not in ignore_images:
+                        self.img_list.append(p)
+                    else:
+                        print('Ignoring image {}'.format(p))
+                else:
+                    self.img_list.append(p)
+
+            self.img_list.extend(image_paths)
         self.img_list.reverse()
         print('DATASET CREATED WITH ' + str(len(self.img_list)) + ' files.')
         self.transform = transform
@@ -83,36 +99,36 @@ def main():
     data = BlipDataset(cutout_folder, transform)
     inference_dataloader = DataLoader(data, batch_size=batch_size, collate_fn=data.collate_fn)
 
-    data_iter = iter(inference_dataloader)
-
-    question1 = 'what age group is the person?'
-    question2 = 'what is the person wearing?'
-    question3 = 'what is the position of the person?'
-    question4 = 'what is the gender of the person?'
-
-    i = 1
-    for step, batch in enumerate(data_iter):
-        print('STEP: ' + str(step))
-        paths = batch['paths']
-        print(paths)
-        images = batch['image_pixel_values'].to(device)
-        answers = {}
-        with torch.no_grad():
-            for q in [question1, question2, question4, question3]:
-                print('QUESTION: ' + q)
-                answer = model(images, q, train=False, inference='generate')
-                print('ANSWERS: ')
-                print(answer)
-                answers[q] = answer
-
-        i += 1
-
-        for j in range(batch_size):
-            caption = f'{answers[question1][j]} {answers[question4][j]} {answers[question3][j]} wearing {answers[question2][j]}'
-            print(caption)
-            key = Path(paths[j]).stem.replace('c_', 't_', 1)
-            with open(f'{caption_folder}{key}.txt', "w") as text_file:
-                text_file.write(caption)
+    # data_iter = iter(inference_dataloader)
+    #
+    # question1 = 'what age group is the person?'
+    # question2 = 'what is the person wearing?'
+    # question3 = 'what is the position of the person?'
+    # question4 = 'what is the gender of the person?'
+    #
+    # i = 1
+    # for step, batch in enumerate(data_iter):
+    #     print('STEP: ' + str(step))
+    #     paths = batch['paths']
+    #     print(paths)
+    #     images = batch['image_pixel_values'].to(device)
+    #     answers = {}
+    #     with torch.no_grad():
+    #         for q in [question1, question2, question4, question3]:
+    #             print('QUESTION: ' + q)
+    #             answer = model(images, q, train=False, inference='generate')
+    #             print('ANSWERS: ')
+    #             print(answer)
+    #             answers[q] = answer
+    #
+    #     i += 1
+    #
+    #     for j in range(batch_size):
+    #         caption = f'{answers[question1][j]} {answers[question4][j]} {answers[question3][j]} wearing {answers[question2][j]}'
+    #         print(caption)
+    #         key = Path(paths[j]).stem.replace('c_', 't_', 1)
+    #         with open(f'{caption_folder}{key}.txt', "w") as text_file:
+    #             text_file.write(caption)
 
 
 if __name__ == '__main__':
