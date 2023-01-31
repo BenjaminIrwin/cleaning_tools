@@ -23,6 +23,8 @@ class BlipDataset(Dataset):
             with open(ignore_images, 'r') as f:
                 ignore_images = f.read().splitlines()
 
+            print('Ignoring images: {}'.format(len(ignore_images)))
+
         import glob
         types = ('*.jpg', '*.png', '*.jpeg')
         self.img_list = []
