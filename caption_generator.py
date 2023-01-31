@@ -83,6 +83,7 @@ def main():
 
     cutout_folder = args.image_dir
     caption_folder = args.caption_dir
+    ignore_images = args.ignore_images
 
     if not os.path.exists(caption_folder):
         os.mkdir(caption_folder)
@@ -98,7 +99,7 @@ def main():
 
     batch_size = 100
 
-    data = BlipDataset(cutout_folder, transform)
+    data = BlipDataset(cutout_folder, transform, ignore_images)
     inference_dataloader = DataLoader(data, batch_size=batch_size, collate_fn=data.collate_fn)
 
     # data_iter = iter(inference_dataloader)
