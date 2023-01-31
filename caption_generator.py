@@ -24,6 +24,7 @@ class BlipDataset(Dataset):
                 ignore_images = f.read().splitlines()
 
             print('Ignoring images: {}'.format(len(ignore_images)))
+            print(ignore_images)
 
         import glob
         types = ('*.jpg', '*.png', '*.jpeg')
@@ -32,7 +33,9 @@ class BlipDataset(Dataset):
             image_paths = glob.glob(img_dir + '/' + files)
             for p in image_paths:
                 if ignore_images:
-                    if os.path.basename(p).replace('.png','').replace('.jpg','').replace('.jpeg','') not in ignore_images:
+                    n = os.path.basename(p).replace('.png', '').replace('.jpg', '').replace('.jpeg', '')
+                    print('Checking image {}'.format(n))
+                    if n not in ignore_images:
                         self.img_list.append(p)
                     else:
                         print('Ignoring image {}'.format(p))
