@@ -1,5 +1,6 @@
 import argparse
 import os
+import re
 import sys
 
 import torch
@@ -13,18 +14,15 @@ from torchvision.transforms.functional import InterpolationMode
 parser = argparse.ArgumentParser()
 parser.add_argument('--image_dir', type=str, default='data/images', help='path to images')
 parser.add_argument('--caption_dir', type=str, default='out')
-parser.add_argument('--ignore_images', type=str, default=None, help='path to txt file with images to ignore')
+parser.add_argument('--skip_overwrite', type=str, default=None, help='skip overwriting existing captions in --caption_dir')
 
 class BlipDataset(Dataset):
-    def __init__(self, img_dir, transform=None, ignore_images=None):
+    def __init__(self, img_dir, transform=None, skip_overwrite=None):
         self.img_dir = img_dir
 
-        if ignore_images:
-            with open(ignore_images, 'r') as f:
-                ignore_images = f.read().splitlines()
-
-            print('Ignoring images: {}'.format(len(ignore_images)))
-            print(ignore_images)
+        if skip_overwrite:
+            already_downloaded = set(os.listdir(skip_overwrite))
+            print('Skipping overwriting {} files'.format(len(skip_overwrite)))
 
         import glob
         types = ('*.jpg', '*.png', '*.jpeg')
@@ -32,10 +30,9 @@ class BlipDataset(Dataset):
         for files in types:
             image_paths = glob.glob(img_dir + '/' + files)
             for p in image_paths:
-                if ignore_images:
-                    n = os.path.basename(p).replace('c_','', 1).replace('.png', '').replace('.jpg', '').replace('.jpeg', '')
-                    # print('Checking image {}'.format(n))
-                    if n not in ignore_images:
+                if already_downloaded:
+                    n = re.sub('\.[^/.]+$', '', os.path.basename(p).replace('c_','t_', 1)) + '.txt'
+                    if n not in already_downloaded:
                         self.img_list.append(p)
                     else:
                         print('Ignoring image {}'.format(p))
