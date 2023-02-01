@@ -1,6 +1,5 @@
 import argparse
 import os
-import re
 import sys
 
 import torch
@@ -14,15 +13,18 @@ from torchvision.transforms.functional import InterpolationMode
 parser = argparse.ArgumentParser()
 parser.add_argument('--image_dir', type=str, default='data/images', help='path to images')
 parser.add_argument('--caption_dir', type=str, default='out')
-parser.add_argument('--skip_overwrite', type=str, default=None, help='skip overwriting existing captions in --caption_dir')
+parser.add_argument('--ignore_images', type=str, default=None, help='path to txt file with images to ignore')
 
 class BlipDataset(Dataset):
-    def __init__(self, img_dir, transform=None, skip_overwrite=None):
+    def __init__(self, img_dir, transform=None, ignore_images=None):
         self.img_dir = img_dir
 
-        if skip_overwrite:
-            already_downloaded = set(os.listdir(skip_overwrite))
-            print('Skipping overwriting {} files'.format(len(skip_overwrite)))
+        if ignore_images:
+            with open(ignore_images, 'r') as f:
+                ignore_images = f.read().splitlines()
+
+            print('Ignoring images: {}'.format(len(ignore_images)))
+            print(ignore_images)
 
         import glob
         types = ('*.jpg', '*.png', '*.jpeg')
@@ -30,9 +32,11 @@ class BlipDataset(Dataset):
         for files in types:
             image_paths = glob.glob(img_dir + '/' + files)
             for p in image_paths:
-                if already_downloaded:
-                    n = re.sub('\.[^/.]+$', '', os.path.basename(p).replace('c_','t_', 1)) + '.txt'
-                    if n not in already_downloaded:
+                if ignore_images:
+                    n = os.path.basename(p).replace('c_','', 1).replace('.png', '').replace('.jpg', '').replace('.jpeg', '')
+                    print('Checking image {}'.format(n))
+                    # print('Checking image {}'.format(n))
+                    if n not in ignore_images:
                         self.img_list.append(p)
                     else:
                         print('Ignoring image {}'.format(p))
@@ -40,7 +44,6 @@ class BlipDataset(Dataset):
                     self.img_list.append(p)
 
             self.img_list.extend(image_paths)
-        self.img_list.reverse()
         print('DATASET CREATED WITH ' + str(len(self.img_list)) + ' files.')
         self.transform = transform
 
@@ -102,6 +105,36 @@ def main():
     data = BlipDataset(cutout_folder, transform, ignore_images)
     inference_dataloader = DataLoader(data, batch_size=batch_size, collate_fn=data.collate_fn)
 
+    # data_iter = iter(inference_dataloader)
+    #
+    # question1 = 'what age group is the person?'
+    # question2 = 'what is the person wearing?'
+    # question3 = 'what is the position of the person?'
+    # question4 = 'what is the gender of the person?'
+    #
+    # i = 1
+    # for step, batch in enumerate(data_iter):
+    #     print('STEP: ' + str(step))
+    #     paths = batch['paths']
+    #     print(paths)
+    #     images = batch['image_pixel_values'].to(device)
+    #     answers = {}
+    #     with torch.no_grad():
+    #         for q in [question1, question2, question4, question3]:
+    #             print('QUESTION: ' + q)
+    #             answer = model(images, q, train=False, inference='generate')
+    #             print('ANSWERS: ')
+    #             print(answer)
+    #             answers[q] = answer
+    #
+    #     i += 1
+    #
+    #     for j in range(batch_size):
+    #         caption = f'{answers[question1][j]} {answers[question4][j]} {answers[question3][j]} wearing {answers[question2][j]}'
+    #         print(caption)
+    #         key = Path(paths[j]).stem.replace('c_', 't_', 1)
+    #         with open(f'{caption_folder}{key}.txt', "w") as text_file:
+    #             text_file.write(caption)
     data_iter = iter(inference_dataloader)
 
     question1 = 'what age group is the person?'
@@ -136,3 +169,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

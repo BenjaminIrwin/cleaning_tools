@@ -1,11 +1,8 @@
 import glob
+import os
+import re
 
-text_files = glob.glob('boundings/*.txt')
-print('Found {} text files'.format(len(text_files)))
-for t in text_files:
-    # Parse text file to get the bounding boxes
-    with open(t, 'r') as f:
-        lines = f.readlines()
-        # convert each line to a list of floats
-        lines = [list(map(float,line.strip().strip('[]').split(', '))) for line in lines]
-        print(lines)
+p = 'data/images/c_this_is_a_cut1234_0.jpg'
+
+print(re.sub('\.[^/.]+$', '', os.path.basename(p).replace('c_','t_', 1)) + '.txt')
+
