@@ -8,9 +8,12 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--source_dir', type=str, default='images', help='Directory containing the source images')
 
+
 def main():
     args = parser.parse_args()
     source_dir = args.source_dir
+
+    print('Checking images in', source_dir)
 
     # Iterate through all files in the source directory
     for file in os.listdir(source_dir):
@@ -22,3 +25,7 @@ def main():
                 print('Dims violation:', file_path + ' ' + str(img.size))
         except (IOError, SyntaxError) as e:
             print('Bad file:', file_path)
+
+
+if __name__ == '__main__':
+    main()
