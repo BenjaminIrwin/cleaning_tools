@@ -88,6 +88,9 @@ def main():
             for caption_file in caption_files:
                 print('Renaming {} to {}'.format(caption_file, caption_file.replace('t_' + name, 'cap_' + str(idx))))
         else:
+            # Write old name to new name file
+            with open('name_mapping.txt', 'a+') as f:
+                f.write(name + ' ' + str(idx) + '\n')
             os.rename(image_file, image_file.replace(name, 'img_' + str(idx)))
             os.rename(boundings_file, boundings_file.replace(name, 'bnd_' + str(idx)))
             for mask_file in mask_files:
