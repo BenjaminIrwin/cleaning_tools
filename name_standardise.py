@@ -79,14 +79,14 @@ def main():
 
         # Rename the files
         if dry_run:
-            print('Renaming {} to img_{}'.format(image_file, idx))
-            print('Renaming {} to bnd_{}'.format(boundings_file, idx))
+            print('Renaming {} to {}'.format(image_file, image_file.replace(name, 'img_' + str(idx))))
+            print('Renaming {} to {}'.format(boundings_file, boundings_file.replace(name, 'bnd_' + str(idx))))
             for mask_file in mask_files:
-                print('Renaming {} to msk_{}'.format(mask_file, idx))
+                print('Renaming {} to {}'.format(mask_file, mask_file.replace('m_' + name, 'msk_' + str(idx))))
             for cutout_file in cutout_files:
-                print('Renaming {} to cut_{}'.format(cutout_file, idx))
+                print('Renaming {} to {}'.format(cutout_file, cutout_file.replace('c_' + name, 'cut_' + str(idx))))
             for caption_file in caption_files:
-                print('Renaming {} to cap_{}'.format(caption_file, idx))
+                print('Renaming {} to {}'.format(caption_file, caption_file.replace('t_' + name, 'cap_' + str(idx))))
         else:
             os.rename(image_file, image_file.replace(name, 'img_' + str(idx)))
             os.rename(boundings_file, boundings_file.replace(name, 'bnd_' + str(idx)))
