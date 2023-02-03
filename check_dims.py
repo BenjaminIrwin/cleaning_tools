@@ -42,12 +42,18 @@ def main():
         for img_path in violating_ims:
             # Open image
             img = Image.open(img_path)
+            print('Image size:', img.size)
+            # Delete image if one dim is smaller than 512
+            if img.size[0] < 512 or img.size[1] < 512:
+                print('Deleting image', img_path)
+                if not dry_run:
+                    os.remove(img_path)
+                continue
             # Open all corresponding masks
             basename = re.sub('\.[^/.]+$', '', os.path.basename(img_path))
             masks = glob.glob(os.path.join(args.mask_dir, 'm_' + basename + '*'))
             print('Found', len(masks), 'masks for', img_path)
             # Perform same random crop on image and masks
-            print('Image size:', img.size)
             x = random.randint(0, img.size[0] - 512)
             # x = 0
             # y = random.randint(0, img.size[1] - 512)
