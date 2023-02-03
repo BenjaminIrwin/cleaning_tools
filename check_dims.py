@@ -68,6 +68,10 @@ def main():
                         m.show()
                     else:
                         m.save(mask)
+                else:
+                    print('Deleting mask', mask)
+                    if not dry_run:
+                        os.remove(mask)
     else:
         print('Aborted')
 
