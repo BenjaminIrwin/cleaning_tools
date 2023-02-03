@@ -11,7 +11,8 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--source_dir', type=str, default='images', help='Directory containing the source images')
 parser.add_argument('--mask_dir', type=str, default='masks', help='Directory containing the source masks')
-parser.add_argument('--dry_run', type=bool, default=True, help='will not delete files if true')
+parser.add_argument('--dry_run', action='store_true', help='will not delete files if true')
+
 
 def main():
     args = parser.parse_args()
@@ -57,9 +58,8 @@ def main():
             else:
                 img.save(img_path)
 
-
             for mask in masks:
-                m = Image.open(mask)
+                m = Image.open(mask).convert('L')
                 m = m.crop((x, y, x + 512, y + 512))
                 # Only save mask if it contains at least one white pixel
                 if np.any(np.array(m) == 255):
