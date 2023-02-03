@@ -47,6 +47,7 @@ def main():
             masks = glob.glob(os.path.join(args.mask_dir, 'm_' + basename + '*'))
             print('Found', len(masks), 'masks for', img_path)
             # Perform same random crop on image and masks
+            print('Image size:', img.size)
             x = random.randint(0, img.size[0] - 512)
             # x = 0
             # y = random.randint(0, img.size[1] - 512)
