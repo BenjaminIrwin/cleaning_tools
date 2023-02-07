@@ -14,17 +14,7 @@ parser.add_argument('--input_image_folder', type=str, required=True,
 parser.add_argument('--classifier_path', type=str, default='render_classifier (1).pkl',
                     help='Path to the classifier model.')
 parser.add_argument('--batch_size', type=int, default=50, help='Inference batch size.')
-parser.add_argument('--remove_if_false', type=bool, default=False, help='Remove images if classifier returns false.')
-
-trash_folder = 'trash'
-failed_folder = 'failed'
-
-if not os.path.exists(trash_folder):
-    os.makedirs(trash_folder)
-
-if not os.path.exists(failed_folder):
-    os.makedirs(failed_folder)
-
+parser.add_argument('--trash_folder', type=str, default='trash', help='Trash folder.')
 
 def main():
     print("***** FAST AI CLASSIFIER *****")
@@ -33,7 +23,10 @@ def main():
     custom_classifier_path = args.classifier_path
     input_image_folder = args.input_image_folder
     batch_size = args.batch_size
-    remove_if_false = args.remove_if_false
+    trash_folder = args.trash_folder
+    if not os.path.exists(trash_folder):
+        os.makedirs(trash_folder)
+
     learn = load_learner(custom_classifier_path, cpu=False)
     learn.model.to(torch.device('cuda'))
 
@@ -74,9 +67,7 @@ def main():
 
                     print('CLEANED: ', count)
                 except Exception:
-                    print('ERROR MOVING IMAGE TO FAILED.')
-                    filename = os.path.basename(image)
-                    shutil.move(image, failed_folder + '/' + filename)
+                    print('ERROR CLASSIFYING: ', image)
 
     cleaned_images = glob.glob(trash_folder + '/*')
     print('CLEANED IMAGES: ', len(cleaned_images))

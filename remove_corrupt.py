@@ -3,7 +3,7 @@ import os
 
 from PIL import Image
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(description='Remove corrupt images from a directory')
 parser.add_argument('--source_dir', type=str, default='images', help='Directory containing the source images')
 
 

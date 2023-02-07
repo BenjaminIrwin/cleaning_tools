@@ -21,7 +21,8 @@ from utils.torch_utils import select_device, load_classifier, time_synchronized,
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--source_dir', type=str, default='/content/test', help='source')
-parser.add_argument('--txt_output_dir', type=str, default='/content/output', help='txt_output_dir')
+parser.add_argument('--bounding_output_dir', type=str, default='/content/output', help='bounding_output_dir')
+parser.add_argument('--conf_thres', type=float, default=0.3, help='confidence threshold')
 
 
 def PIL_to_tensor(pil_image):
@@ -62,12 +63,7 @@ def detect(target_class=0, conf_thres=0.7, iou_thres=0.45, imgsz=640,
             modelc.load_state_dict(torch.load('weights/resnet101.pt', map_location=device)['model']).to(device).eval()
 
         # Set Dataloader
-        vid_path, vid_writer = None, None
         dataset = LoadImages(source, img_size=imgsz, stride=stride)
-
-        # Get names and colors
-        names = model.module.names if hasattr(model, 'module') else model.names
-        colors = [[random.randint(0, 255) for _ in range(3)] for _ in names]
 
         # Run inference
         if device.type != 'cpu':
@@ -75,15 +71,11 @@ def detect(target_class=0, conf_thres=0.7, iou_thres=0.45, imgsz=640,
         old_img_w = old_img_h = imgsz
         old_img_b = 1
 
-        t0 = time.time()
-
-        results = {}
-
         for path, img, im0s, vid_cap in dataset:
             p = Path(path)  # to Path
-            txt_path = save_dir + '/' + p.stem
+            txt_path = save_dir + '/b_' + p.stem + '.txt'
             if os.path.exists(txt_path):
-                print('Path {} already exists, skipping'.format(txt_path))
+                print('Bounding {} already exists, skipping'.format(txt_path))
                 continue
             else:
                 print('Processing {}'.format(txt_path))
@@ -137,17 +129,20 @@ def detect(target_class=0, conf_thres=0.7, iou_thres=0.45, imgsz=640,
                         if cls.item() == target_class:
                             img_results.append(xyxy_float)
 
-            with open(txt_path, 'w') as f:
-                for item in img_results:
-                    line = '[' + ', '.join(str(x) for x in item) + ']'
-                    f.write(line + '\n')
+            if len(img_results) > 0:
+                with open(txt_path, 'w') as f:
+                    for item in img_results:
+                        line = '[' + ', '.join(str(x) for x in item) + ']'
+                        f.write(line + '\n')
 
 
 def main():
     args = parser.parse_args()
-
-    detect(target_class=0, conf_thres=0.35, iou_thres=0.45, imgsz=512,
-           source=args.source_dir, cpu=False, save_dir=args.txt_output_dir)
+    bounding_output_dir = args.bounding_output_dir
+    if not os.path.exists(bounding_output_dir):
+        os.mkdir(bounding_output_dir)
+    detect(target_class=0, conf_thres=args.conf_thres, iou_thres=0.45, imgsz=512,
+           source=args.source_dir, cpu=False, save_dir=bounding_output_dir)
 
 
 if __name__ == '__main__':

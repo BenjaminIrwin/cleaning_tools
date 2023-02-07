@@ -25,15 +25,14 @@ def main():
     print('Found {} text files'.format(len(text_files)))
     for t in text_files:
         # Get the image name
-        name = os.path.basename(t).replace('.txt', '')
+        name = os.path.basename(t).replace('.txt', '').replace('b_', '')
         print('Processing {}'.format(name))
         # Parse text file to get the bounding boxes
         with open(t, 'r') as f:
             lines = f.readlines()
             # convert each line to a list of floats
             mask_xyxy_list = [list(map(float, line.strip().strip('[]').split(', '))) for line in lines]
-            print(mask_xyxy_list)
-            size = (512, 512)
+            size = (512, 512) # PROBLEM HERE
 
             for idx, mask_xyxy in enumerate(mask_xyxy_list):
                 # Create mask

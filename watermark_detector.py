@@ -20,13 +20,14 @@ preprocessing = T.Compose([
     T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
-trash_folder = 'trash'
-failed_folder = 'failed'
-
 parser = argparse.ArgumentParser(description='Watermark cleaner')
 parser.add_argument('--input_image_folder', type=str, required=True,
                     help='The folder containing the images to be classified.')
 parser.add_argument('--batch_size', type=int, default=50, help='Inference batch size.')
+parser.add_argument('--trash_folder', type=str, default='trash',
+                    help='The folder to move the images with watermark to.')
+parser.add_argument('--checkpoint', type=str, default='watermark_model_v1.pt',
+                    help='The checkpoint file to load the model from.')
 
 
 def detect_watermark(image_paths, conf_thresh=0.5):
@@ -73,7 +74,9 @@ def main():
     args = parser.parse_args()
     input_image_folder = args.input_image_folder
     batch_size = args.batch_size
-    test_files = glob.glob(input_image_folder + '/*.jpg')
+    trash_folder = args.trash_folder
+    # glob all image files (jpg, png, jpeg, webp, etc.) from input folder
+    test_files = glob.glob(input_image_folder + '/*.*')
     print('FILES FOUND: ', len(test_files))
     # calculate num_batches rounded up to nearest integer
     num_batches = math.ceil(len(test_files) // batch_size)
@@ -81,15 +84,12 @@ def main():
     curr_batch = 1
     for batch in get_batch(test_files, batch_size):
         print('BATCH: ', curr_batch, ' OF ', num_batches)
-        # try:
         watermark_images = detect_watermark(batch)
-        # Move all watermark images to 'failed' folder
+        # Move all watermark images to 'trash' folder
         for img in watermark_images:
             print('Moving ' + img)
             filename = os.path.basename(img)
             shutil.move(img, trash_folder + '/' + filename)
-        # except Exception as e:
-        #     print('ERROR: ', e)
         curr_batch += 1
 
 
