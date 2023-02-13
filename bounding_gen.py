@@ -25,7 +25,7 @@ parser.add_argument('--bounding_output_dir', type=str, default='/content/output'
 parser.add_argument('--conf_thres', type=float, default=0.3, help='confidence threshold')
 parser.add_argument('--target_classes', nargs='+', type=str, default=['person'], help='target classes')
 
-classes = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket', 'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush']
+class_names = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket', 'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush']
 
 def PIL_to_tensor(pil_image):
     return transforms.ToTensor()(pil_image)
@@ -42,9 +42,9 @@ def detect(target_classes=None, conf_thres=0.7, iou_thres=0.45, imgsz=640,
 
     for c in target_classes:
         try:
-            class_nums.append(classes.index(c))
+            class_nums.append(class_names.index(c))
         except ValueError:
-            raise RuntimeError(f'Segmentation class {c} is invalid. Choose from {classes}')
+            raise RuntimeError(f'Segmentation class {c} is invalid. Choose from {class_names}')
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
 
@@ -114,7 +114,7 @@ def detect(target_classes=None, conf_thres=0.7, iou_thres=0.45, imgsz=640,
             t2 = time_synchronized()
 
             # Apply NMS
-            pred = non_max_suppression(pred, conf_thres, iou_thres, classes=classes, agnostic=agnostic_nms)
+            pred = non_max_suppression(pred, conf_thres, iou_thres, classes=None, agnostic=agnostic_nms)
             t3 = time_synchronized()
 
             # Apply Classifier
@@ -150,7 +150,7 @@ def detect(target_classes=None, conf_thres=0.7, iou_thres=0.45, imgsz=640,
                     f.write('{}, {}\n'.format(im0.shape[1], im0.shape[0]))
                     for cls in img_results:
                         # Write class name to first line
-                        f.write('{}: \n'.format(classes[cls]))
+                        f.write('{}: \n'.format(class_names[cls]))
                         for item in img_results[cls]:
                             line = '[' + ', '.join(str(x) for x in item) + ']'
                             f.write(line + '\n')
