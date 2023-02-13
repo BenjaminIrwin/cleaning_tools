@@ -30,9 +30,11 @@ def main():
         # Parse text file to get the bounding boxes
         with open(t, 'r') as f:
             lines = f.readlines()
-            # convert each line to a list of floats
-            mask_xyxy_list = [list(map(float, line.strip().strip('[]').split(', '))) for line in lines]
-            size = (512, 512) # PROBLEM HERE
+            # Get width and height dimensions from first line
+            size = tuple(map(int, lines[0].strip().split(', ')))
+
+            # convert each line after first to a list of floats
+            mask_xyxy_list = [list(map(float, line.strip().strip('[]').split(', '))) for line in lines[1:]]
 
             for idx, mask_xyxy in enumerate(mask_xyxy_list):
                 # Create mask

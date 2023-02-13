@@ -131,6 +131,8 @@ def detect(target_class=0, conf_thres=0.7, iou_thres=0.45, imgsz=640,
 
             if len(img_results) > 0:
                 with open(txt_path, 'w') as f:
+                    # Write image width and height to first line
+                    f.write('{}, {}\n'.format(im0.shape[1], im0.shape[0]))
                     for item in img_results:
                         line = '[' + ', '.join(str(x) for x in item) + ']'
                         f.write(line + '\n')
