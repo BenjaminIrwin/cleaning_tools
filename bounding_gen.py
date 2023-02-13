@@ -24,14 +24,26 @@ parser.add_argument('--source_dir', type=str, default='/content/test', help='sou
 parser.add_argument('--bounding_output_dir', type=str, default='/content/output', help='bounding_output_dir')
 parser.add_argument('--conf_thres', type=float, default=0.3, help='confidence threshold')
 
+classes = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket', 'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush']
 
 def PIL_to_tensor(pil_image):
     return transforms.ToTensor()(pil_image)
 
 
-def detect(target_class=0, conf_thres=0.7, iou_thres=0.45, imgsz=640,
+def detect(target_classes=None, conf_thres=0.7, iou_thres=0.45, imgsz=640,
            source='/content/test', classes=None, weights='yolov7x.pt', agnostic_nms=True,
            trace=False, augment=True, cpu=False, save_dir='/content/output'):
+
+    class_nums = []
+
+    if target_classes is None:
+        target_classes = ['person']
+
+    for c in target_classes:
+        try:
+            class_nums.append(classes.index(c))
+        except ValueError:
+            raise RuntimeError(f'Segmentation class {c} is invalid. Choose from {classes}')
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
 
@@ -108,7 +120,7 @@ def detect(target_class=0, conf_thres=0.7, iou_thres=0.45, imgsz=640,
             if classify:
                 pred = apply_classifier(pred, modelc, img, im0s)
 
-            img_results = []
+            img_results = {}
 
             # Process detections
             for i, det in enumerate(pred):  # detections per image
@@ -126,16 +138,25 @@ def detect(target_class=0, conf_thres=0.7, iou_thres=0.45, imgsz=640,
 
                     for *xyxy, conf, cls in reversed(det):
                         xyxy_float = [c.item() for c in xyxy]
-                        if cls.item() == target_class:
-                            img_results.append(xyxy_float)
+                        if cls.item() in class_nums:
+                            if cls.item() not in img_results:
+                                img_results[cls.item()] = []
+                            img_results[cls.item()].append(xyxy_float)
 
             if len(img_results) > 0:
                 with open(txt_path, 'w') as f:
                     # Write image width and height to first line
                     f.write('{}, {}\n'.format(im0.shape[1], im0.shape[0]))
-                    for item in img_results:
-                        line = '[' + ', '.join(str(x) for x in item) + ']'
-                        f.write(line + '\n')
+                    for cls in img_results:
+                        # Write class name to first line
+                        f.write('{}: \n'.format(classes[cls]))
+                        for item in img_results[cls]:
+                            line = '[' + ', '.join(str(x) for x in item) + ']'
+                            f.write(line + '\n')
+
+                    # for item in img_results:
+                    #     line = '[' + ', '.join(str(x) for x in item) + ']'
+                    #     f.write(line + '\n')
 
 
 def main():

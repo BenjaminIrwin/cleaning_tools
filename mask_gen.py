@@ -7,6 +7,7 @@ from PIL import Image, ImageDraw
 parser = argparse.ArgumentParser()
 parser.add_argument('--source_dir', type=str, default='images', help='Directory containing the source images')
 parser.add_argument('--text_output_dir', type=str, default='boundings', help='txt_output_dir')
+parser.add_argument('--class_name', type=str, default='person', help='Class you want to mask')
 parser.add_argument('--mask_output_dir', type=str, default='masks', help='mask_output_dir')
 parser.add_argument('--include_cutout', action='store_true', help='include_cutout')
 parser.add_argument('--cutout_output_dir', type=str, default='cutouts', help='cutout_output_dir')
@@ -33,8 +34,12 @@ def main():
             # Get width and height dimensions from first line
             size = tuple(map(int, lines[0].strip().split(', ')))
 
-            # convert each line after first to a list of floats
-            mask_xyxy_list = [list(map(float, line.strip().strip('[]').split(', '))) for line in lines[1:]]
+            # Get index of 'class_name:' lines
+            class_name_idx = lines.index(args.class_name + ':')
+            # Get index of next line that contains a ':' (i.e. the next class)
+            next_class_idx = lines.index([l for l in lines[class_name_idx + 1:] if ':' in l][0])
+            # Get the bounding boxes
+            mask_xyxy_list = [list(map(float, line.strip().strip('[]').split(', '))) for line in lines[class_name_idx + 1:next_class_idx]]
 
             for idx, mask_xyxy in enumerate(mask_xyxy_list):
                 # Create mask
