@@ -42,7 +42,7 @@ def detect(target_class=0, conf_thres=0.7, iou_thres=0.45, imgsz=640,
         else:
             device = select_device('0')
 
-        half = False
+        half = device.type != 'cpu'  # half precision only supported on CUDA
 
         # Load model
         model = attempt_load(weights, map_location=device)  # load FP32 model
