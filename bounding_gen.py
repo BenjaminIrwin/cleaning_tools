@@ -166,7 +166,7 @@ def main():
     target_classes = args.target_classes
     if not os.path.exists(bounding_output_dir):
         os.mkdir(bounding_output_dir)
-    detect(target_class=target_classes, conf_thres=args.conf_thres, iou_thres=0.45, imgsz=512,
+    detect(target_classes=target_classes, conf_thres=args.conf_thres, iou_thres=0.45, imgsz=512,
            source=args.source_dir, cpu=False, save_dir=bounding_output_dir)
 
 
