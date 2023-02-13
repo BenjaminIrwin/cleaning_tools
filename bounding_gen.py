@@ -23,6 +23,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--source_dir', type=str, default='/content/test', help='source')
 parser.add_argument('--bounding_output_dir', type=str, default='/content/output', help='bounding_output_dir')
 parser.add_argument('--conf_thres', type=float, default=0.3, help='confidence threshold')
+parser.add_argument('--target_classes', nargs='+', type=str, default=['person'], help='target classes')
 
 classes = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket', 'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush']
 
@@ -162,9 +163,10 @@ def detect(target_classes=None, conf_thres=0.7, iou_thres=0.45, imgsz=640,
 def main():
     args = parser.parse_args()
     bounding_output_dir = args.bounding_output_dir
+    target_classes = args.target_classes
     if not os.path.exists(bounding_output_dir):
         os.mkdir(bounding_output_dir)
-    detect(target_class=0, conf_thres=args.conf_thres, iou_thres=0.45, imgsz=512,
+    detect(target_class=target_classes, conf_thres=args.conf_thres, iou_thres=0.45, imgsz=512,
            source=args.source_dir, cpu=False, save_dir=bounding_output_dir)
 
 
