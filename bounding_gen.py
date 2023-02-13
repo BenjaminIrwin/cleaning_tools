@@ -32,7 +32,7 @@ def PIL_to_tensor(pil_image):
 
 
 def detect(target_classes=None, conf_thres=0.7, iou_thres=0.45, imgsz=640,
-           source='/content/test', classes=None, weights='yolov7x.pt', agnostic_nms=True,
+           source='/content/test', weights='yolov7x.pt', agnostic_nms=True,
            trace=False, augment=True, cpu=False, save_dir='/content/output'):
 
     class_nums = []
@@ -140,6 +140,7 @@ def detect(target_classes=None, conf_thres=0.7, iou_thres=0.45, imgsz=640,
                     for *xyxy, conf, cls in reversed(det):
                         xyxy_float = [c.item() for c in xyxy]
                         if cls.item() in class_nums:
+
                             if cls.item() not in img_results:
                                 img_results[cls.item()] = []
                             img_results[cls.item()].append(xyxy_float)
