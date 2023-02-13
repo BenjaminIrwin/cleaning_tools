@@ -14,8 +14,16 @@ from torchvision import transforms as T
 
 from util import get_batch
 
+print('starting')
+
+# preprocessing = T.Compose([
+#     T.Resize((256, 256)),
+#     T.ToTensor(),
+#     T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+# ])
+
 preprocessing = T.Compose([
-    T.Resize((256, 256)),
+    T.Resize((512, 512)),
     T.ToTensor(),
     T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
@@ -30,7 +38,7 @@ parser.add_argument('--checkpoint', type=str, default='watermark_model_v1.pt',
                     help='The checkpoint file to load the model from.')
 
 
-def detect_watermark(image_paths, conf_thresh=0.5):
+def detect_watermark(image_paths, trash_folder, conf_thresh=0.5):
     model = timm.create_model(
         'efficientnet_b3a', pretrained=True, num_classes=2)
 
@@ -56,7 +64,13 @@ def detect_watermark(image_paths, conf_thresh=0.5):
 
     img_batch = []
     for image_path in image_paths:
-        img_batch.append(preprocessing(Image.open(image_path).convert('RGB')))
+        broken_files = []
+        try:
+            img_batch.append(preprocessing(Image.open(image_path).convert('RGB')))
+        except:
+            print(f'cant read {image_path}')
+            broken_files += [image_path]
+    
     batch = torch.stack(img_batch).cuda()
     with torch.no_grad():
         pred = model(batch)
@@ -65,7 +79,7 @@ def detect_watermark(image_paths, conf_thresh=0.5):
             if water_sym[0] > conf_thresh:
                 watermark_images.append(image_paths[idx])
 
-    return watermark_images
+    return watermark_images, broken_files
 
 
 def main():
@@ -76,6 +90,7 @@ def main():
     batch_size = args.batch_size
     trash_folder = args.trash_folder
     # glob all image files (jpg, png, jpeg, webp, etc.) from input folder
+    print(os.path.exists(input_image_folder))
     test_files = glob.glob(input_image_folder + '/*.*')
     print('FILES FOUND: ', len(test_files))
     # calculate num_batches rounded up to nearest integer
@@ -84,14 +99,18 @@ def main():
     curr_batch = 1
     for batch in get_batch(test_files, batch_size):
         print('BATCH: ', curr_batch, ' OF ', num_batches)
-        watermark_images = detect_watermark(batch)
+        watermark_images, broken_files = detect_watermark(batch,trash_folder)
         # Move all watermark images to 'trash' folder
         for img in watermark_images:
             print('Moving ' + img)
             filename = os.path.basename(img)
             shutil.move(img, trash_folder + '/' + filename)
+        for img in broken_files:
+            print('Moving ' + img)
+            filename = os.path.basename(img)
+            shutil.move(img, trash_folder + '/weird_ones/' + filename)            
         curr_batch += 1
-
 
 if __name__ == "__main__":
     main()
+
