@@ -31,7 +31,7 @@ def PIL_to_tensor(pil_image):
     return transforms.ToTensor()(pil_image)
 
 
-def detect(target_classes=None, conf_thres=0.7, iou_thres=0.45, imgsz=640,
+def detect(target_classes=None, conf_thres=0.3, iou_thres=0.45, imgsz=640,
            source='/content/test', weights='yolov7x.pt', agnostic_nms=True,
            trace=False, augment=True, cpu=False, save_dir='/content/output'):
 
@@ -95,6 +95,7 @@ def detect(target_classes=None, conf_thres=0.7, iou_thres=0.45, imgsz=640,
             img = torch.from_numpy(img).to(device)
             img = img.half() if half else img.float()  # uint8 to fp16/32
             img /= 255.0  # 0 - 255 to 0.0 - 1.0
+            print('Loaded image shape: {}'.format(img.shape))
             if img.ndimension() == 3:
                 img = img.unsqueeze(0)
 
@@ -167,7 +168,7 @@ def main():
     target_classes = args.target_classes
     if not os.path.exists(bounding_output_dir):
         os.mkdir(bounding_output_dir)
-    detect(target_classes=target_classes, conf_thres=args.conf_thres, iou_thres=0.45, imgsz=512,
+    detect(target_classes=target_classes, conf_thres=args.conf_thres, iou_thres=0.45, imgsz=640,
            source=args.source_dir, cpu=False, save_dir=bounding_output_dir)
 
 
