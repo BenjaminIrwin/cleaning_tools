@@ -21,16 +21,30 @@ from utils.torch_utils import select_device, load_classifier, time_synchronized,
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--source_dir', type=str, default='/content/test', help='source')
-parser.add_argument('--txt_output_dir', type=str, default='/content/output', help='txt_output_dir')
+parser.add_argument('--bounding_output_dir', type=str, default='/content/output', help='bounding_output_dir')
+parser.add_argument('--conf_thres', type=float, default=0.3, help='confidence threshold')
+parser.add_argument('--target_classes', nargs='+', type=str, default=['person'], help='target classes')
 
+class_names = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket', 'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush']
 
 def PIL_to_tensor(pil_image):
     return transforms.ToTensor()(pil_image)
 
 
-def detect(target_class=0, conf_thres=0.7, iou_thres=0.45, imgsz=640,
-           source='/content/test', classes=None, weights='yolov7x.pt', agnostic_nms=True,
+def detect(target_classes=None, conf_thres=0.3, iou_thres=0.45, imgsz=640,
+           source='/content/test', weights='yolov7x.pt', agnostic_nms=True,
            trace=False, augment=True, cpu=False, save_dir='/content/output'):
+
+    class_nums = []
+
+    if target_classes is None:
+        target_classes = ['person']
+
+    for c in target_classes:
+        try:
+            class_nums.append(class_names.index(c))
+        except ValueError:
+            raise RuntimeError(f'Segmentation class {c} is invalid. Choose from {class_names}')
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
 
@@ -62,12 +76,7 @@ def detect(target_class=0, conf_thres=0.7, iou_thres=0.45, imgsz=640,
             modelc.load_state_dict(torch.load('weights/resnet101.pt', map_location=device)['model']).to(device).eval()
 
         # Set Dataloader
-        vid_path, vid_writer = None, None
         dataset = LoadImages(source, img_size=imgsz, stride=stride)
-
-        # Get names and colors
-        names = model.module.names if hasattr(model, 'module') else model.names
-        colors = [[random.randint(0, 255) for _ in range(3)] for _ in names]
 
         # Run inference
         if device.type != 'cpu':
@@ -75,21 +84,18 @@ def detect(target_class=0, conf_thres=0.7, iou_thres=0.45, imgsz=640,
         old_img_w = old_img_h = imgsz
         old_img_b = 1
 
-        t0 = time.time()
-
-        results = {}
-
         for path, img, im0s, vid_cap in dataset:
             p = Path(path)  # to Path
-            txt_path = save_dir + '/' + p.stem
+            txt_path = save_dir + '/b_' + p.stem + '.txt'
             if os.path.exists(txt_path):
-                print('Path {} already exists, skipping'.format(txt_path))
+                print('Bounding {} already exists, skipping'.format(txt_path))
                 continue
             else:
                 print('Processing {}'.format(txt_path))
             img = torch.from_numpy(img).to(device)
             img = img.half() if half else img.float()  # uint8 to fp16/32
             img /= 255.0  # 0 - 255 to 0.0 - 1.0
+            print('Loaded image shape: {}'.format(img.shape))
             if img.ndimension() == 3:
                 img = img.unsqueeze(0)
 
@@ -109,14 +115,14 @@ def detect(target_class=0, conf_thres=0.7, iou_thres=0.45, imgsz=640,
             t2 = time_synchronized()
 
             # Apply NMS
-            pred = non_max_suppression(pred, conf_thres, iou_thres, classes=classes, agnostic=agnostic_nms)
+            pred = non_max_suppression(pred, conf_thres, iou_thres, classes=None, agnostic=agnostic_nms)
             t3 = time_synchronized()
 
             # Apply Classifier
             if classify:
                 pred = apply_classifier(pred, modelc, img, im0s)
 
-            img_results = []
+            img_results = {}
 
             # Process detections
             for i, det in enumerate(pred):  # detections per image
@@ -134,20 +140,36 @@ def detect(target_class=0, conf_thres=0.7, iou_thres=0.45, imgsz=640,
 
                     for *xyxy, conf, cls in reversed(det):
                         xyxy_float = [c.item() for c in xyxy]
-                        if cls.item() == target_class:
-                            img_results.append(xyxy_float)
+                        if cls.item() in class_nums:
 
-            with open(txt_path, 'w') as f:
-                for item in img_results:
-                    line = '[' + ', '.join(str(x) for x in item) + ']'
-                    f.write(line + '\n')
+                            if cls.item() not in img_results:
+                                img_results[cls.item()] = []
+                            img_results[cls.item()].append(xyxy_float)
+
+            if len(img_results) > 0:
+                with open(txt_path, 'w') as f:
+                    # Write image width and height to first line
+                    f.write('{}, {}\n'.format(im0.shape[1], im0.shape[0]))
+                    for cls in img_results:
+                        # Write class name to first line
+                        f.write('{}: \n'.format(class_names[cls]))
+                        for item in img_results[cls]:
+                            line = '[' + ', '.join(str(x) for x in item) + ']'
+                            f.write(line + '\n')
+
+                    # for item in img_results:
+                    #     line = '[' + ', '.join(str(x) for x in item) + ']'
+                    #     f.write(line + '\n')
 
 
 def main():
     args = parser.parse_args()
-
-    detect(target_class=0, conf_thres=0.35, iou_thres=0.45, imgsz=512,
-           source=args.source_dir, cpu=False, save_dir=args.txt_output_dir)
+    bounding_output_dir = args.bounding_output_dir
+    target_classes = args.target_classes
+    if not os.path.exists(bounding_output_dir):
+        os.mkdir(bounding_output_dir)
+    detect(target_classes=target_classes, conf_thres=args.conf_thres, iou_thres=0.45, imgsz=640,
+           source=args.source_dir, cpu=False, save_dir=bounding_output_dir)
 
 
 if __name__ == '__main__':
