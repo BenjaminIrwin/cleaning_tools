@@ -152,8 +152,8 @@ def detect(target_classes=None, conf_thres=0.3, iou_thres=0.45, imgsz=640,
                     f.write('{}, {}\n'.format(im0.shape[1], im0.shape[0]))
                     for cls in img_results:
                         # Write class name to first line
-                        f.write('{}: \n'.format(class_names[cls]))
-                        for item in img_results[cls]:
+                        f.write('{}: \n'.format(class_names[int(cls)]))
+                        for item in img_results[int(cls)]:
                             line = '[' + ', '.join(str(x) for x in item) + ']'
                             f.write(line + '\n')
 
