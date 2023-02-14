@@ -35,7 +35,7 @@ def main():
             size = tuple(map(int, lines[0].strip().split(', ')))
 
             # Get index of 'class_name:' lines
-            class_name_idx = lines.index(args.class_name + ':')
+            class_name_idx = lines.index(args.class_name + ': \n')
             # Get index of next line that contains a ':' (i.e. the next class)
             next_class_idx = lines.index([l for l in lines[class_name_idx + 1:] if ':' in l][0])
             # Get the bounding boxes
