@@ -36,8 +36,9 @@ def main():
 
             # Get index of 'class_name:' lines
             class_name_idx = lines.index(args.class_name + ': \n')
-            # Get index of next line that contains a ':' (i.e. the next class)
-            next_class_idx = lines.index([l for l in lines[class_name_idx + 1:] if ':' in l][0])
+            # Get index of next line that contains a ':' (i.e. the next class) or the end of the file
+            next_class_idx = [i for i, line in enumerate(lines[class_name_idx + 1:]) if ':' in line]
+            next_class_idx = next_class_idx[0] + class_name_idx + 1 if len(next_class_idx) > 0 else len(lines)
             # Get the bounding boxes
             mask_xyxy_list = [list(map(float, line.strip().strip('[]').split(', '))) for line in lines[class_name_idx + 1:next_class_idx]]
 
