@@ -128,7 +128,7 @@ def detect(target_classes=None, conf_thres=0.3, iou_thres=0.45, imgsz=640,
             for i, det in enumerate(pred):  # detections per image
                 p, s, im0, frame = path, '', im0s, getattr(dataset, 'frame', 0)
                 p = Path(p)  # to Path
-                txt_path = save_dir + '/' + p.stem
+                txt_path = save_dir + '/b_' + p.stem + '.txt'
                 gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
                 if len(det):
                     # Rescale boxes from img_size to im0 size
