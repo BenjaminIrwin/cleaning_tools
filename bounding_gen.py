@@ -4,6 +4,7 @@ import sys
 import time
 import argparse
 from pathlib import Path
+from tqdm import tqdm
 
 import numpy as np
 import torch
@@ -84,7 +85,7 @@ def detect(target_classes=None, conf_thres=0.3, iou_thres=0.45, imgsz=640,
         old_img_w = old_img_h = imgsz
         old_img_b = 1
 
-        for path, img, im0s, vid_cap in dataset:
+        for path, img, im0s, vid_cap in tqdm(dataset):
             p = Path(path)  # to Path
             txt_path = save_dir + '/b_' + p.stem + '.txt'
             if os.path.exists(txt_path):
@@ -95,7 +96,7 @@ def detect(target_classes=None, conf_thres=0.3, iou_thres=0.45, imgsz=640,
             img = torch.from_numpy(img).to(device)
             img = img.half() if half else img.float()  # uint8 to fp16/32
             img /= 255.0  # 0 - 255 to 0.0 - 1.0
-            print('Loaded image shape: {}'.format(img.shape))
+#             print('Loaded image shape: {}'.format(img.shape))
             if img.ndimension() == 3:
                 img = img.unsqueeze(0)
 
