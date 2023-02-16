@@ -43,18 +43,21 @@ def main():
                 mask_xyxy_list = [list(map(float, line.strip().strip('[]').split(', '))) for line in lines[class_name_idx + 1:next_class_idx]]
 
                 for idx, mask_xyxy in enumerate(mask_xyxy_list):
-                    # Create mask
-                    img = Image.new("RGB", size, (0, 0, 0))
-                    d = ImageDraw.Draw(img)
-                    d.rectangle(mask_xyxy, fill="white")
-                    img.save(args.mask_output_dir + '/m_' + name + '_' + str(idx) + '.jpg')
+                    try:
+                        # Create mask
+                        img = Image.new("RGB", size, (0, 0, 0))
+                        d = ImageDraw.Draw(img)
+                        d.rectangle(mask_xyxy, fill="white")
+                        img.save(args.mask_output_dir + '/m_' + name + '_' + str(idx) + '.jpg')
 
-                    # Create cutout
-                    if args.include_cutout:
-                        img_path = glob.glob(args.source_dir + '/' + name + '.*')[0]
-                        img = Image.open(img_path)
-                        img = img.crop(mask_xyxy)
-                        img.save(args.cutout_output_dir + '/c_' + name + '_' + str(idx) + '.jpg')
+                        # Create cutout
+                        if args.include_cutout:
+                            img_path = glob.glob(args.source_dir + '/' + name + '.*')[0]
+                            img = Image.open(img_path)
+                            img = img.crop(mask_xyxy)
+                            img.save(args.cutout_output_dir + '/c_' + name + '_' + str(idx) + '.jpg')
+                    except:
+                        print(f'unable to generate mask for {t}')
             except ValueError:
                 print('No {} found in {}'.format(args.class_name, t))
 
