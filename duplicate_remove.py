@@ -26,6 +26,7 @@ def main():
         res = fastdup.delete_components(top_components, None, how='one', dry_run=dry_run)
         print('image deleted:')
         print(res)
+        print(f'{len(res)} images deleted')
     else:
         fastdup.delete_components(top_components, None, how='one', dry_run=dry_run)
 
