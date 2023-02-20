@@ -4,7 +4,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--input_dir', type=str, default='data/images', help='path to images')
 parser.add_argument('--work_dir', type=str, default='out', help='path to working directry')
-parser.add_argument('--dry_run', type=str, default='True', help='set to False to automatically delete duplicates')
+parser.add_argument('--dry_run', type=bool, default= True, help='set to False to automatically delete duplicates')
 
 
 def main():
