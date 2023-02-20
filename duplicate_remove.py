@@ -14,7 +14,7 @@ def main():
     dry_run = not (args.delete_duplicates)
 
     if not dry_run:
-        print('You are NOT doing a dry run, all of the duplicates will be deleted at the end')
+        print('\n ****You are NOT doing a dry run, all of the duplicates will be deleted at the end!**** \n')
         
     fastdup.run(input_dir=input_dir, work_dir=work_dir, nearest_neighbors_k=8,
                 turi_param='ccthreshold=0.96')  # main running function.
