@@ -21,7 +21,13 @@ def main():
     fastdup.create_components_gallery(work_dir, save_path='.')
     fastdup.create_duplicates_gallery(work_dir, save_path='.')
     top_components = fastdup.find_top_components(work_dir)
-    fastdup.delete_components(top_components, None, how='one', dry_run=dry_run)
+    
+    if not dry_run:
+        res = fastdup.delete_components(top_components, None, how='one', dry_run=dry_run)
+        print('image deleted:')
+        print(res)
+    else:
+        fastdup.delete_components(top_components, None, how='one', dry_run=dry_run)
 
 if __name__ == '__main__':
     main()
