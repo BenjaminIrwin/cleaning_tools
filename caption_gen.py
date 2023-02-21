@@ -180,7 +180,7 @@ def main():
                     # this shouldn't be saved here but I couldn't be bother fixing the error that always comes up at the end
                     print(f'images_with_no_class.txt saved in {working_dir}')
                     images_with_no_class = list(set(images_with_no_class))
-                    with open(working_dir + 'images_with_no_class.txt', 'w') as f:
+                    with open(working_dir + class_name + '_images_with_no_class.txt', 'w') as f:
                         for line in images_with_no_class:
                             f.write(f"{line}\n")
 
@@ -195,7 +195,7 @@ def main():
 
     print(f'images_with_no_class.txt saved in {working_dir}')
     images_with_no_class = list(set(images_with_no_class))
-    with open(working_dir + 'images_with_no_class.txt', 'w') as f:
+    with open(working_dir + class_name + '_images_with_no_class.txt', 'w') as f:
         for line in images_with_no_class:
             f.write(f"{line}\n")
 
