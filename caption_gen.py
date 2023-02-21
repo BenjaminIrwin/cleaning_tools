@@ -147,10 +147,10 @@ def main():
         answers = {}
         with torch.no_grad():
             for q in questions:
-                print('QUESTION: ' + q)
+#                 print('QUESTION: ' + q)
                 answer = model(images, q, train=False, inference='generate')
-                print('ANSWERS: ')
-                print(answer)
+#                 print('ANSWERS: ')
+#                 print(answer)
                 answers[q] = answer
 
         i += 1
