@@ -15,6 +15,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--image_dir', type=str, default='data/images', help='path to images')
 parser.add_argument('--caption_dir', type=str, default='out')
 parser.add_argument('--ignore_images', type=str, default=None, help='path to txt file with images to ignore')
+parser.add_argument('--working_dir', type=str, default='.', help='path to where the txt file with the result summary will be saved')
+parser.add_argument('--class_name', type=str, default='person', help='Class you want to generate caption for')
 
 
 class BlipDataset(Dataset):
@@ -87,8 +89,10 @@ def main():
 
     args = parser.parse_args()
 
+    class_name = args.class_name
     cutout_folder = args.image_dir
     caption_folder = args.caption_dir
+    working_dir = args.working_dir
     if not os.path.exists(caption_folder):
         os.mkdir(caption_folder)
     ignore_images = args.ignore_images
@@ -105,27 +109,43 @@ def main():
     from torch.utils.data import DataLoader
     from pathlib import Path
 
-    batch_size = 100
+    batch_size = 12
 
     data = BlipDataset(cutout_folder, transform, ignore_images)
     inference_dataloader = DataLoader(data, batch_size=batch_size, collate_fn=data.collate_fn)
 
     data_iter = iter(inference_dataloader)
 
-    question1 = 'what age group is the person?'
-    question2 = 'what is the person wearing?'
-    question3 = 'what is the position of the person?'
-    question4 = 'what is the gender of the person?'
+    if class_name == 'person':
+        question0 = 'is this a person?'
+        question1 = 'what age group is the person?'
+        question2 = 'what is the person wearing?'
+        question3 = 'what is the position of the person?'
+        question4 = 'what is the gender of the person?'
+        question5 = 'is the image a close-up?'
+
+        questions = [question0, question1, question2, question4, question3, question5]
+    
+    elif class_name == 'car':
+        question0 = 'is it a car?'
+        question1 = 'what is the color of the car?'
+        question2 = 'what type of car is it?'
+        question3 = 'is the car parked?'
+        question4 = 'is the image a close-up?'
+
+        questions = [question0, question1, question2, question3, question4]
+
 
     i = 1
+    images_with_no_class = []
     for step, batch in enumerate(data_iter):
-        print('STEP: ' + str(step))
+        print('\n STEP: ' + str(step+1) + ' of ' + str(len(data_iter)))
         paths = batch['paths']
-        print(paths)
+        # print(paths)
         images = batch['image_pixel_values'].to(device)
         answers = {}
         with torch.no_grad():
-            for q in [question1, question2, question4, question3]:
+            for q in questions:
                 print('QUESTION: ' + q)
                 answer = model(images, q, train=False, inference='generate')
                 print('ANSWERS: ')
@@ -133,13 +153,50 @@ def main():
                 answers[q] = answer
 
         i += 1
-
         for j in range(batch_size):
-            caption = f'{answers[question1][j]} {answers[question4][j]} {answers[question3][j]} wearing {answers[question2][j]}'
+            try:
+                if class_name == 'person':
+                    if answers[question0][j] == 'no':
+                        caption = ''
+                    else:
+                        caption = f'{answers[question1][j]} {answers[question4][j]} {answers[question3][j]} wearing {answers[question2][j]}.'
+                        if answers[question5][j] == 'yes':
+                            caption = 'close-up of ' + caption
+
+                elif class_name == 'car':
+                        if answers[question0][j] == 'no':
+                            caption = ''
+                        else:
+                            if answers[question3][j] == 'yes':
+                                caption = f'{answers[question1][j]} parked {answers[question2][j]}'
+                            else:
+                                caption = f'{answers[question1][j]} {answers[question2][j]}'
+
+                            if answers[question4][j] == 'yes':
+                                caption = 'close-up of ' + caption
+
+            except:
+                    # this shouldn't be saved here but I couldn't be bother fixing the error that always comes up at the end
+                    print(f'images_with_no_class.txt saved in {working_dir}')
+                    images_with_no_class = list(set(images_with_no_class))
+                    with open(working_dir + 'images_with_no_class.txt', 'w') as f:
+                        for line in images_with_no_class:
+                            f.write(f"{line}\n")
+
             print(caption)
+            
             key = Path(paths[j]).stem.replace('c_', 't_', 1)
+            if caption == '':
+                images_with_no_class += [key]
+
             with open(f'{caption_folder}{key}.txt', "w") as text_file:
                 text_file.write(caption)
+
+    print(f'images_with_no_class.txt saved in {working_dir}')
+    images_with_no_class = list(set(images_with_no_class))
+    with open(working_dir + 'images_with_no_class.txt', 'w') as f:
+        for line in images_with_no_class:
+            f.write(f"{line}\n")
 
 
 if __name__ == '__main__':
