@@ -17,6 +17,7 @@ parser.add_argument('--caption_dir', type=str, default='out')
 parser.add_argument('--ignore_images', type=str, default=None, help='path to txt file with images to ignore')
 parser.add_argument('--working_dir', type=str, default='.', help='path to where the txt file with the result summary will be saved')
 parser.add_argument('--class_name', type=str, default='person', help='Class you want to generate caption for')
+parser.add_argument('--batch_size', type=int, default=100, help='batch_size')
 
 
 class BlipDataset(Dataset):
@@ -93,6 +94,8 @@ def main():
     cutout_folder = args.image_dir
     caption_folder = args.caption_dir
     working_dir = args.working_dir
+    batch_size = args.batch_size
+    
     if not os.path.exists(caption_folder):
         os.mkdir(caption_folder)
     ignore_images = args.ignore_images
@@ -108,8 +111,6 @@ def main():
 
     from torch.utils.data import DataLoader
     from pathlib import Path
-
-    batch_size = 12
 
     data = BlipDataset(cutout_folder, transform, ignore_images)
     inference_dataloader = DataLoader(data, batch_size=batch_size, collate_fn=data.collate_fn)
