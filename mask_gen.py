@@ -1,6 +1,7 @@
 import argparse
 import glob
 import os
+from tqdm import tqdm
 
 from PIL import Image, ImageDraw
 
@@ -24,7 +25,7 @@ def main():
     # Load all the text files
     text_files = glob.glob(args.text_output_dir + '/*')
     print('Found {} text files'.format(len(text_files)))
-    for t in text_files:
+    for t in tqdm(text_files):
         # Get the image name
         name = os.path.basename(t).replace('.txt', '').replace('b_', '')
         print('Processing {}'.format(name))
