@@ -91,7 +91,7 @@ def detect(target_classes=None, conf_thres=0.3, iou_thres=0.45, imgsz=640,
             if os.path.exists(txt_path):
                 print('Bounding {} already exists, skipping'.format(txt_path))
                 continue
-            else:
+#             else:
 #                 print('Processing {}'.format(txt_path))
             img = torch.from_numpy(img).to(device)
             img = img.half() if half else img.float()  # uint8 to fp16/32
