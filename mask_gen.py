@@ -25,6 +25,7 @@ def main():
     # Load all the text files
     text_files = glob.glob(args.text_output_dir + '/*')
     print('Found {} text files'.format(len(text_files)))
+    no_class_num = 0
     for t in tqdm(text_files):
         # Get the image name
         name = os.path.basename(t).replace('.txt', '').replace('b_', '')
@@ -60,7 +61,9 @@ def main():
                     except:
                         print(f'unable to generate mask for {t}')
             except ValueError:
-                print('No {} found in {}'.format(args.class_name, t))
+                # print('No {} found in {}'.format(args.class_name, t))
+                no_class_num += 1
+    print(f'{no_class_num} bounding files with no {args.class_name}')
 
 if __name__ == '__main__':
     main()
