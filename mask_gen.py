@@ -28,7 +28,7 @@ def main():
     for t in tqdm(text_files):
         # Get the image name
         name = os.path.basename(t).replace('.txt', '').replace('b_', '')
-        print('Processing {}'.format(name))
+        # print('Processing {}'.format(name))
         # Parse text file to get the bounding boxes
         with open(t, 'r') as f:
             lines = f.readlines()
