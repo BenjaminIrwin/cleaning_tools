@@ -184,7 +184,7 @@ def main():
                         for line in images_with_no_class:
                             f.write(f"{line}\n")
 
-            print(caption)
+            # print(caption)
             
             key = Path(paths[j]).stem.replace('c_', 't_', 1)
             if caption == '':
