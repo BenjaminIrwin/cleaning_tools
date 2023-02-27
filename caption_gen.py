@@ -50,6 +50,7 @@ class BlipDataset(Dataset):
                     self.img_list.append(p)
 
             self.img_list.extend(image_paths)
+            self.img_list = list(set(self.img_list))
         print('DATASET CREATED WITH ' + str(len(self.img_list)) + ' files.')
         self.transform = transform
 
