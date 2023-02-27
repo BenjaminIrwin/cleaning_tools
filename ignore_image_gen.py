@@ -97,7 +97,7 @@ def main():
     elif class_name == 'car':
         QA_question = 'is it a car?'
 
-    i = 0
+    tot_no_class = 0
     images_with_no_class = []
     for step, batch in enumerate(data_iter):
         print('\n STEP: ' + str(step+1) + ' of ' + str(len(data_iter)))
@@ -107,13 +107,15 @@ def main():
         answers = {}
         with torch.no_grad():
             QA_check = model(images, QA_question, train=False, inference='generate')
- 
+        
+        stp_no_class = 0
         for j in range(batch_size):
             try:
                 if QA_check[j] == 'no':
                     key = Path(paths[j]).stem.replace('c_', '', 1)
                     images_with_no_class += [key]
-                    i+=1
+                    tot_no_class+=1
+                    stp_no_class+=1
             
             except:
                     # this shouldn't be saved here but I couldn't be bother fixing the error that always comes up at the end
@@ -124,9 +126,11 @@ def main():
                         for line in images_with_no_class:
                             f.write(f"{line}\n")
                     exit()
+                    
+        print(f'{stp_no_class} images with no class in step')
 
     print(f'images_with_no_class.txt saved in {working_dir}')
-    print(f'{i} images with no classes') 
+    print(f'{tot_no_class} images with no classes') 
     images_with_no_class = list(set(images_with_no_class))
     with open(working_dir + class_name + '_images_with_no_class.txt', 'w') as f:
         for line in images_with_no_class:
