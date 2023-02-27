@@ -233,7 +233,6 @@ def main():
             continue
 
         if not os.path.isfile(caption_path + 't_' + filename + '.txt'):
-            print(mask_path + 't_' + filename + '.txt')
             print(f'no caption match for {filename}, skipping')
             no_caption_num += 1
             continue
