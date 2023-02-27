@@ -41,8 +41,8 @@ class BlipDataset(Dataset):
                     # print('Checking image {}'.format(n))
                     if n not in ignore_images:
                         self.img_list.append(p)
-                    else:
-                        print('Ignoring image {}'.format(p))
+#                     else:
+#                         print('Ignoring image {}'.format(p))
                 else:
                     self.img_list.append(p)
 
