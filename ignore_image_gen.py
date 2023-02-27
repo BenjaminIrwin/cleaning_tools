@@ -125,7 +125,7 @@ def main():
                             f.write(f"{line}\n")
                     exit()
 
-    print(f'images_with_no_class.txt saved in {working_dir}')
+        print(f'images_with_no_class.txt saved in {working_dir}')
     print(f'{i} images with no classes') 
     images_with_no_class = list(set(images_with_no_class))
     with open(working_dir + class_name + '_images_with_no_class.txt', 'w') as f:
