@@ -165,9 +165,9 @@ def full_res_transform(padding, target_res, pil_image, pil_mask):
 
     return cropped_image, monochannel_mask
 
-def get_basename(i, remove_sub_number=True):
+def get_basename(i, target_classes='person', remove_sub_number=True):
     sub = re.sub('\.[^/.]+$', '', os.path.basename(i))
-    if sub.startswith('m_') or sub.startswith('t_'):
+    if sub.startswith('m_') or sub.startswith('t_') or sub.startswith(target_classes + '_'):
         sub_ = sub[2:]
         if remove_sub_number:
             # remove all chars after the last underscore
@@ -264,5 +264,8 @@ def main():
     
     print(f'{copied_num} successfuly copied and {no_class_num} masks with no class, {no_caption_num} missing captions, {no_image_num} missing images and {too_small_num} images that were too small')
 
+    unique_images = set([get_basename(i, target_classes=target_classes) for i in glob.glob(image_save_path + '/*')])
+    print(f'{len(unique_images)} copied')
+    
 if __name__ == '__main__':
     main()
