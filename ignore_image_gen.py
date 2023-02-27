@@ -119,7 +119,7 @@ def main():
             
             except:
                     # this shouldn't be saved here but I couldn't be bother fixing the error that always comes up at the end
-                    print(f'{i} images with no classes') 
+                    print(f'{tot_no_class} images with no classes') 
                     print(f'images_with_no_class.txt saved in {working_dir}')
                     images_with_no_class = list(set(images_with_no_class))
                     with open(working_dir + class_name + '_images_with_no_class.txt', 'w') as f:
