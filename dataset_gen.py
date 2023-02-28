@@ -6,7 +6,7 @@ import numpy as np
 import glob
 import os
 import re
-import shutilS
+import shutil
 
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
 
