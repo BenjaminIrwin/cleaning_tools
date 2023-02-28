@@ -226,7 +226,7 @@ def main():
         filename = get_basename(mask, remove_sub_number=False)
 
         if filename in mask_with_no_class_list:
-            print(f'no class in {filename}, skipping')
+#             print(f'no class in {filename}, skipping')
             no_class_num += 1
             continue
 
@@ -246,7 +246,7 @@ def main():
             continue
 
         if min(pil_image.size) < target_res:
-            print(f'{image} is too small, skipping.')
+#             print(f'{image} is too small, skipping.')
             too_small_num += 1
             continue
 
