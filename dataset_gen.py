@@ -6,9 +6,7 @@ import numpy as np
 import glob
 import os
 import re
-import shutil
-
-from mask import get_crop_region, get_mask_region
+import shutilS
 
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
 
