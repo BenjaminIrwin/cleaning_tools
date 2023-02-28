@@ -263,7 +263,7 @@ def main():
     print(f'{copied_num} successfuly copied and {no_class_num} masks with no class, {no_caption_num} missing captions, {no_image_num} missing images and {too_small_num} images that were too small')
 
     unique_images = set([get_basename(i, target_classes=target_classes) for i in glob.glob(image_save_path + '/*')])
-    print(f'{len(unique_images)} copied')
+    print(f'{len(unique_images)} unique images')
     
 if __name__ == '__main__':
     main()
