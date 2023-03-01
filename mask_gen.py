@@ -55,7 +55,7 @@ def main():
                         # Create cutout
                         if args.include_cutout:
                             img_path = glob.glob(args.source_dir + '/' + name + '.*')[0]
-                            img = Image.open(img_path)
+                            img = Image.open(img_path).convert('RGB')
                             img = img.crop(mask_xyxy)
                             img.save(args.cutout_output_dir + '/c_' + name + '_' + str(idx) + '.jpg')
                     except:
