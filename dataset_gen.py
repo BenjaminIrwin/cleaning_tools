@@ -164,7 +164,7 @@ def full_res_transform(padding, target_res, pil_image, pil_mask):
 
     monochannel_mask = monochannel_mask.crop(crop_region)
     cropped_image = pil_image.crop(crop_region)
-
+        
     return cropped_image, monochannel_mask
 
 def get_basename(i, target_classes='person', remove_sub_number=True):
@@ -258,6 +258,9 @@ def main():
         padding = int(max(125, min_padding_threshold))
 
         pil_image, pil_mask = full_res_transform(padding, target_res, pil_image, pil_mask)
+        final_w, final_h = pil_image.size
+        if final_w != target_res or final_h != target_res:
+            print(f'******SOMETHING WENT WRONG WITH {filename}, THE SIZE IS NOT RIGHT. DIMENSIONS: {final_w}, {final_h}******')
 
         pil_image.save(image_save_path + target_classes + '_' + filename + '.jpg')
         pil_mask.save(mask_save_path + target_classes + '_' + filename + '.jpg')
