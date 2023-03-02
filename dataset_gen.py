@@ -72,16 +72,20 @@ def get_crop_region(mask, pad=0, target_res=512):
         crop_top -= 1
 
     while crop_right - crop_left > target_res:
-        crop_right -= 1
-        crop_left += 1
         if (crop_right - crop_left) - target_res == 1:
             crop_left += 1
+        else:
+            crop_right -= 1
+            crop_left += 1
+
     
     while crop_bottom - crop_top > target_res:
-        crop_bottom -= 1
-        crop_top += 1
         if (crop_bottom - crop_top) - target_res == 1:
             crop_top += 1
+        else:
+            crop_bottom -= 1
+            crop_top += 1
+
 
     if crop_left < 0:
         crop_right = target_res
