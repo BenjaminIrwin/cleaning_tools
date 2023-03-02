@@ -237,7 +237,7 @@ def main():
 
         try:
             image = get_matching_images(filename, image_files, previous_image)
-            pil_image = Image.open(image)
+            pil_image = Image.open(image).convert('RGB')
             pil_mask = Image.open(mask)
             previous_image = image
         except:
